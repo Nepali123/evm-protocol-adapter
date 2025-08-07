@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {MerkleTree} from "../../src/libs/MerkleTree.sol";
 import {SHA256} from "../../src/libs/SHA256.sol";
@@ -41,16 +41,15 @@ contract CommitmentAccumulatorTest is Test, MerkleTreeExample {
         _cmAcc.merkleProof(emptyLeafHash);
     }
 
-    function test_merkleProof_should_return_correct_siblings_and_direction_bits() public {
+    function test_merkleProof_should_return_correct_direction_bits() public {
         for (uint256 i = 0; i < _N_LEAFS; ++i) {
-            uint256 cap = _cmAcc.capacity();
-
             _cmAcc.addCommitment(_leaves[i + 1][i]);
 
-            for (uint256 j = 0; j < cap; ++j) {
-                (bytes32[] memory path, uint256 directionBits) = _cmAcc.merkleProof(_leaves[i + 1][j]);
+            uint256 cap = _cmAcc.capacity();
 
-                //assertEq(path, _siblings[i + 1][j]);
+            for (uint256 j = 0; j < i + 1; ++j) {
+                (, uint256 directionBits) = _cmAcc.merkleProof(_leaves[i + 1][j]);
+
                 assertEq(directionBits, _directionBits[cap][j]);
             }
         }
@@ -116,7 +115,18 @@ contract CommitmentAccumulatorTest is Test, MerkleTreeExample {
         }
     }
 
-    /*
+    function test_should_produce_an_invalid_root_for_a_non_existent_leaf_in_the_empty_tree() public view {
+        bytes32 root = _cmAcc.initialRoot();
+
+        bytes32 nonExistentCommitment = sha256("NON_EXISTENT");
+        bytes32 invalidRoot = nonExistentCommitment;
+
+        bytes32 computedRoot =
+            MerkleTree.processProof({siblings: new bytes32[](0), directionBits: 0, leaf: nonExistentCommitment});
+        assertNotEq(computedRoot, root);
+        assertEq(computedRoot, invalidRoot);
+    }
+
     function test_should_produce_an_invalid_root_for_a_non_existent_leaf() public {
         bytes32 nonExistentCommitment = sha256("NON_EXISTENT");
 
@@ -158,7 +168,6 @@ contract CommitmentAccumulatorTest is Test, MerkleTreeExample {
             }
         }
     }
-    */
 
     function test_merkleProof_returns_proofs_that_match_the_latest_root() public {
         for (uint256 i = 0; i < _N_LEAFS; ++i) {
@@ -166,17 +175,10 @@ contract CommitmentAccumulatorTest is Test, MerkleTreeExample {
 
             // Check that all leaves of the current tree result in proofs reproducing the latest root.
             for (uint256 j = 0; j <= i; ++j) {
-                console.log(i, j);
                 bytes32 cm = _leaves[_N_ROOTS - 1][i];
 
                 (bytes32[] memory siblings, uint256 directionBits) = _cmAcc.merkleProof(cm);
                 bytes32 computedRoot = MerkleTree.processProof(siblings, directionBits, cm);
-
-                for (uint256 k = 0; k < siblings.length; ++k) {
-                    console.log(siblings.length);
-                }
-
-                console.log(directionBits);
 
                 assertEq(computedRoot, latestRoot);
             }
