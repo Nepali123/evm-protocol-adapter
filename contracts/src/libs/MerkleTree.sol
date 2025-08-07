@@ -78,13 +78,13 @@ library MerkleTree {
         }
 
         // If capacity is met, expand tree
+        // TODO! revert if _nextLeafIndex > capacity for safety reasons
         if ((self._nextLeafIndex) == capacity(self)) {
             bytes32 lastZero = Arrays.unsafeAccess(self._zeros, treeDepth).value;
 
-            bytes32 currentZero = SHA256.hash(lastZero, lastZero);
-            self._zeros.push(currentZero);
+            bytes32 nextZero = SHA256.hash(lastZero, lastZero);
+            self._zeros.push(nextZero);
             self._nodes[treeDepth][0] = currentLevelHash;
-
             currentLevelHash = SHA256.hash(currentLevelHash, lastZero);
         }
 
@@ -163,7 +163,7 @@ library MerkleTree {
     /// @param index The index to check.
     /// @return isLeft Whether this node is the left or right child.
     function isLeftChild(uint256 index) internal pure returns (bool isLeft) {
-        isLeft = index & 1 == 0;
+        isLeft = (index & 1) == 0;
     }
 
     /// @notice Processes a Merkle proof consisting of siblings and direction bits and returns the resulting root.
