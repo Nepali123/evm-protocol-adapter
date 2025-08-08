@@ -10,11 +10,6 @@ contract MerkleTreeExample {
     uint256 internal constant _N_LEAFS = 7;
     uint256 internal constant _N_ROOTS = 8;
 
-    bytes32 internal _e0 = _e0;
-    bytes32 internal _e1 = SHA256.hash(_e0, _e0);
-    bytes32 internal _e2 = SHA256.hash(_e1, _e1);
-    bytes32 internal _e3 = SHA256.hash(_e2, _e2);
-
     // We will push 4 leafs - hence the tree will have 5 states
 
     bytes32[][_N_ROOTS] internal _a;
@@ -43,26 +38,26 @@ contract MerkleTreeExample {
         // State 0
         {
             _a[0] = new bytes32[](1);
-            _a[0][0] = _e0;
+            _a[0][0] = SHA256.EMPTY_HASH;
+
             _b[0] = calculateNextLevel(_a[0]);
 
-            _c[0] = calculateNextLevel(_c[0]);
+            _c[0] = calculateNextLevel(_b[0]);
 
             _siblings[0] = new bytes32[][](0);
 
             _roots[0] = MerkleTree.computeRoot(_a[0]);
         }
 
-        /*
         // State 1
         {
             _a[1] = new bytes32[](2);
             _a[1][0] = bytes32(uint256(1));
-            _a[1][1] = _e0;
+            _a[1][1] = SHA256.EMPTY_HASH;
 
             _b[1] = calculateNextLevel(_a[1]);
 
-            _c[1] = calculateNextLevel(_c[1]);
+            _c[1] = calculateNextLevel(_b[1]);
 
             _roots[1] = MerkleTree.computeRoot(_a[1]);
 
@@ -77,12 +72,12 @@ contract MerkleTreeExample {
             _a[2] = new bytes32[](4);
             _a[2][0] = _a[1][0];
             _a[2][1] = bytes32(uint256(2));
-            _a[2][2] = _e0;
-            _a[2][3] = _e0;
+            _a[2][2] = SHA256.EMPTY_HASH;
+            _a[2][3] = SHA256.EMPTY_HASH;
 
             _b[2] = calculateNextLevel(_a[2]);
 
-            _c[2] = calculateNextLevel(_c[2]);
+            _c[2] = calculateNextLevel(_b[2]);
 
             _roots[2] = MerkleTree.computeRoot(_a[2]);
 
@@ -103,11 +98,11 @@ contract MerkleTreeExample {
             _a[3][0] = _a[2][0];
             _a[3][1] = _a[2][1];
             _a[3][2] = bytes32(uint256(3));
-            _a[3][3] = _e0;
+            _a[3][3] = SHA256.EMPTY_HASH;
 
             _b[3] = calculateNextLevel(_a[3]);
 
-            _c[3] = calculateNextLevel(_c[3]);
+            _c[3] = calculateNextLevel(_b[3]);
 
             _roots[3] = MerkleTree.computeRoot(_a[3]);
 
@@ -133,14 +128,17 @@ contract MerkleTreeExample {
             _a[4][1] = _a[3][1];
             _a[4][2] = _a[3][2];
             _a[4][3] = bytes32(uint256(4));
-            _a[4][4] = _e0;
-            _a[4][5] = _e0;
-            _a[4][6] = _e0;
-            _a[4][7] = _e0;
+            _a[4][4] = SHA256.EMPTY_HASH;
+
+            _a[4][5] = SHA256.EMPTY_HASH;
+
+            _a[4][6] = SHA256.EMPTY_HASH;
+
+            _a[4][7] = SHA256.EMPTY_HASH;
 
             _b[4] = calculateNextLevel(_a[4]);
 
-            _c[4] = calculateNextLevel(_c[4]);
+            _c[4] = calculateNextLevel(_b[4]);
 
             _roots[4] = MerkleTree.computeRoot(_a[4]);
 
@@ -175,13 +173,15 @@ contract MerkleTreeExample {
             _a[5][2] = _a[4][2];
             _a[5][3] = _a[4][3];
             _a[5][4] = bytes32(uint256(5));
-            _a[5][5] = _e0;
-            _a[5][6] = _e0;
-            _a[5][7] = _e0;
+            _a[5][5] = SHA256.EMPTY_HASH;
+
+            _a[5][6] = SHA256.EMPTY_HASH;
+
+            _a[5][7] = SHA256.EMPTY_HASH;
 
             _b[5] = calculateNextLevel(_a[5]);
 
-            _c[5] = calculateNextLevel(_c[5]);
+            _c[5] = calculateNextLevel(_b[5]);
 
             _roots[5] = MerkleTree.computeRoot(_a[5]);
 
@@ -222,12 +222,13 @@ contract MerkleTreeExample {
             _a[6][3] = _a[5][3];
             _a[6][4] = _a[5][4];
             _a[6][5] = bytes32(uint256(6));
-            _a[6][6] = _e0;
-            _a[6][7] = _e0;
+            _a[6][6] = SHA256.EMPTY_HASH;
+
+            _a[6][7] = SHA256.EMPTY_HASH;
 
             _b[6] = calculateNextLevel(_a[6]);
 
-            _c[6] = calculateNextLevel(_c[6]);
+            _c[6] = calculateNextLevel(_b[6]);
 
             _roots[6] = MerkleTree.computeRoot(_a[6]);
 
@@ -274,11 +275,11 @@ contract MerkleTreeExample {
             _a[7][4] = _a[6][4];
             _a[7][5] = _a[6][5];
             _a[7][6] = bytes32(uint256(7));
-            _a[7][7] = _e0;
+            _a[7][7] = SHA256.EMPTY_HASH;
 
             _b[7] = calculateNextLevel(_a[7]);
 
-            _c[7] = calculateNextLevel(_c[7]);
+            _c[7] = calculateNextLevel(_b[7]);
 
             _roots[7] = MerkleTree.computeRoot(_a[7]);
 
@@ -320,21 +321,6 @@ contract MerkleTreeExample {
             _siblings[7][6][2] = _c[7][0];
         }
 
-        //// State 8
-        //{
-        //    _a[8] = new bytes32[](8);
-        //    _a[8][0] = _a[7][0];
-        //    _a[8][1] = _a[7][1];
-        //    _a[8][2] = _a[7][2];
-        //    _a[8][3] = _a[7][3];
-        //    _a[8][4] = _a[7][4];
-        //    _a[8][5] = _a[7][5];
-        //    _a[8][6] = _a[7][6];
-        //    _a[8][7] = bytes32(uint256(8));
-        //
-        //    _roots[8] = MerkleTree.computeRoot(_a[8]);
-        //}
-
         {
             _directionBits[1] = new uint256[](0);
 
@@ -344,9 +330,9 @@ contract MerkleTreeExample {
 
             _directionBits[4] = new uint256[](4);
             _directionBits[4][0] = 3; // 11
-            _directionBits[4][1] = 2; // 11
-            _directionBits[4][2] = 1; // 10
-            _directionBits[4][3] = 0; // 10
+            _directionBits[4][1] = 2; // 10
+            _directionBits[4][2] = 1; // 01
+            _directionBits[4][3] = 0; // 00
 
             _directionBits[8] = new uint256[](8);
             _directionBits[8][0] = 7; // 111
@@ -358,14 +344,13 @@ contract MerkleTreeExample {
             _directionBits[8][6] = 1; // 001
             _directionBits[8][7] = 0; // 000
         }
-          */
     }
 
-    function calculateNextLevel(bytes32[] memory x) internal pure returns (bytes32[] memory b) {
+    function calculateNextLevel(bytes32[] memory x) internal pure returns (bytes32[] memory y) {
         uint256 len = x.length / 2;
-        b = new bytes32[](len);
+        y = new bytes32[](len);
         for (uint256 i = 0; i < len; ++i) {
-            b[i] = SHA256.hash(x[i * 2], x[i * 2 + 1]);
+            y[i] = SHA256.hash(x[i * 2], x[(i * 2) + 1]);
         }
     }
 }

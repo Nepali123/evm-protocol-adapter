@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 
 import {MerkleTree} from "../../src/libs/MerkleTree.sol";
 import {SHA256} from "../../src/libs/SHA256.sol";
@@ -127,49 +127,23 @@ contract CommitmentAccumulatorTest is Test, MerkleTreeExample {
         assertEq(computedRoot, invalidRoot);
     }
 
-    /*
     function test_should_produce_an_invalid_root_for_a_non_existent_leaf() public {
         bytes32 nonExistentCommitment = sha256("NON_EXISTENT");
 
-        // Test empty tree
-        bytes32 root = _cmAcc.initialRoot();
-        bytes32 invalidRoot = SHA256.hash(SHA256.hash(nonExistentCommitment, _siblings[0][0][0]), _siblings[0][0][1]);
-
-        bytes32 computedRoot = MerkleTree.processProof({
-            siblings: _siblings[0][0],
-            directionBits: _directionBits[0],
-            leaf: nonExistentCommitment
-        });
-        assertNotEq(computedRoot, root);
-        assertEq(computedRoot, invalidRoot);
-
-        // Populated tree
         for (uint256 i = 0; i < _N_LEAFS; ++i) {
-            root = _cmAcc.addCommitment(_a[i + 1][i]);
+            bytes32 root = _cmAcc.addCommitment(_a[i + 1][i]);
 
             for (uint256 j = 0; j <= i; ++j) {
-                // Depth 0
-                invalidRoot = MerkleTree.isLeftSibling(_directionBits[j], 0)
-                    ? SHA256.hash(_siblings[i + 1][j][0], nonExistentCommitment)
-                    : SHA256.hash(nonExistentCommitment, _siblings[i + 1][j][0]);
-
-                // Depth 1
-                invalidRoot = MerkleTree.isLeftSibling(_directionBits[j], 1)
-                    ? SHA256.hash(_siblings[i + 1][j][1], invalidRoot)
-                    : SHA256.hash(invalidRoot, _siblings[i + 1][j][1]);
-
-                computedRoot = MerkleTree.processProof({
+                bytes32 computedRoot = MerkleTree.processProof({
                     siblings: _siblings[i + 1][j],
-                    directionBits: _directionBits[j],
+                    directionBits: _directionBits[_cmAcc.capacity()][j],
                     leaf: nonExistentCommitment
                 });
 
                 assertNotEq(computedRoot, root);
-                assertEq(computedRoot, invalidRoot);
             }
         }
     }
-    */
 
     function test_merkleProof_returns_proofs_that_match_the_latest_root() public {
         for (uint256 i = 0; i < _N_LEAFS; ++i) {
