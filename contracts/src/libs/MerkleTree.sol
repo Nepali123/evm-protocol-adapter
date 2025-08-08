@@ -77,15 +77,21 @@ library MerkleTree {
             }
         }
 
-        // If capacity is met, expand tree
-        // TODO! revert if _nextLeafIndex > capacity for safety reasons
-        if ((self._nextLeafIndex) == capacity(self)) {
-            bytes32 lastZero = Arrays.unsafeAccess(self._zeros, treeDepth).value;
-
-            bytes32 nextZero = SHA256.hash(lastZero, lastZero);
-            self._zeros.push(nextZero);
+        // Expand the tree if the capacity is reached.
+        if (self._nextLeafIndex == capacity(self)) {
+            // Store the current hash in the current level at index 0.
             self._nodes[treeDepth][0] = currentLevelHash;
-            currentLevelHash = SHA256.hash(currentLevelHash, lastZero);
+
+            // Compute the new current level hash of the expanded tree.
+
+            bytes32 currentZero = Arrays.unsafeAccess(self._zeros, treeDepth).value;
+
+            // Compute the new current level hash.
+            currentLevelHash = SHA256.hash(currentLevelHash, currentZero);
+
+            // Compute the next zero for the next level.
+            bytes32 nextZero = SHA256.hash(currentZero, currentZero);
+            self._zeros.push(nextZero);
         }
 
         newRoot = currentLevelHash;
