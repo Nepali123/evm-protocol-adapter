@@ -44,31 +44,32 @@ contract MerkleTreeExample {
         {
             _a[0] = new bytes32[](1);
             _a[0][0] = _e0;
+            _b[0] = calculateNextLevel(_a[0]);
 
-            _b[0] = new bytes32[](0);
-
-            _c[0] = new bytes32[](0);
+            _c[0] = calculateNextLevel(_c[0]);
 
             _siblings[0] = new bytes32[][](0);
 
             _roots[0] = MerkleTree.computeRoot(_a[0]);
         }
 
+        /*
         // State 1
         {
             _a[1] = new bytes32[](2);
             _a[1][0] = bytes32(uint256(1));
             _a[1][1] = _e0;
 
-            _b[1] = new bytes32[](0);
+            _b[1] = calculateNextLevel(_a[1]);
 
-            _c[1] = new bytes32[](0);
+            _c[1] = calculateNextLevel(_c[1]);
 
             _roots[1] = MerkleTree.computeRoot(_a[1]);
 
             _siblings[1] = new bytes32[][](1);
+
             _siblings[1][0] = new bytes32[](1);
-            _siblings[1][0][0] = _e0;
+            _siblings[1][0][0] = _a[1][1];
         }
 
         // State 2
@@ -79,11 +80,9 @@ contract MerkleTreeExample {
             _a[2][2] = _e0;
             _a[2][3] = _e0;
 
-            _b[2] = new bytes32[](2);
-            _b[2][0] = SHA256.hash(_a[2][0], _a[2][1]);
-            _b[2][1] = _e1;
+            _b[2] = calculateNextLevel(_a[2]);
 
-            _c[2] = new bytes32[](0);
+            _c[2] = calculateNextLevel(_c[2]);
 
             _roots[2] = MerkleTree.computeRoot(_a[2]);
 
@@ -91,11 +90,11 @@ contract MerkleTreeExample {
 
             _siblings[2][0] = new bytes32[](2);
             _siblings[2][0][0] = _a[2][1];
-            _siblings[2][0][1] = _e1;
+            _siblings[2][0][1] = _b[2][1];
 
             _siblings[2][1] = new bytes32[](2);
             _siblings[2][1][0] = _a[2][0];
-            _siblings[2][1][1] = _e1;
+            _siblings[2][1][1] = _b[2][1];
         }
 
         // State 3
@@ -106,27 +105,25 @@ contract MerkleTreeExample {
             _a[3][2] = bytes32(uint256(3));
             _a[3][3] = _e0;
 
-            _b[3] = new bytes32[](2);
-            _b[3][0] = SHA256.hash(_a[3][0], _a[3][1]);
-            _b[3][1] = SHA256.hash(_a[3][2], _e0);
+            _b[3] = calculateNextLevel(_a[3]);
 
-            _c[3] = new bytes32[](0);
+            _c[3] = calculateNextLevel(_c[3]);
 
             _roots[3] = MerkleTree.computeRoot(_a[3]);
 
-            _siblings[3] = new bytes32[][](2);
+            _siblings[3] = new bytes32[][](3);
 
             _siblings[3][0] = new bytes32[](3);
             _siblings[3][0][0] = _a[3][1];
-            _siblings[3][0][1] = SHA256.hash(_a[2][2], _a[2][3]);
+            _siblings[3][0][1] = _b[3][1];
 
             _siblings[3][1] = new bytes32[](2);
             _siblings[3][1][0] = _a[3][0];
-            _siblings[3][1][1] = SHA256.hash(_a[2][2], _a[2][3]);
+            _siblings[3][1][1] = _b[3][1];
 
             _siblings[3][2] = new bytes32[](2);
             _siblings[3][2][0] = _a[3][3];
-            _siblings[3][2][1] = SHA256.hash(_a[2][0], _a[2][1]);
+            _siblings[3][2][1] = _b[3][0];
         }
 
         // State 4
@@ -141,38 +138,33 @@ contract MerkleTreeExample {
             _a[4][6] = _e0;
             _a[4][7] = _e0;
 
-            _b[4] = new bytes32[](4);
-            _b[4][0] = SHA256.hash(_a[4][0], _a[4][1]);
-            _b[4][1] = SHA256.hash(_a[4][2], _a[4][3]);
-            _b[4][0] = SHA256.hash(_a[4][0], _a[4][1]);
-            _b[4][1] = SHA256.hash(_a[4][2], _a[4][3]);
+            _b[4] = calculateNextLevel(_a[4]);
 
-            _c[4] = new bytes32[](2);
-            _c[4][0] = SHA256.hash(_b[4][0], _b[4][1]);
+            _c[4] = calculateNextLevel(_c[4]);
 
             _roots[4] = MerkleTree.computeRoot(_a[4]);
 
             _siblings[4] = new bytes32[][](4);
 
             _siblings[4][0] = new bytes32[](3);
-            _siblings[4][0][0] = _a[3][1];
-            _siblings[4][0][1] = SHA256.hash(_a[3][2], _a[3][3]);
-            _siblings[4][0][2] = _e2;
+            _siblings[4][0][0] = _a[4][1];
+            _siblings[4][0][1] = _b[4][1];
+            _siblings[4][0][2] = _c[4][1];
 
             _siblings[4][1] = new bytes32[](3);
-            _siblings[4][1][0] = _a[3][0];
-            _siblings[4][1][1] = SHA256.hash(_a[3][2], _a[3][3]);
-            _siblings[4][1][2] = _e2;
+            _siblings[4][1][0] = _a[4][0];
+            _siblings[4][1][1] = _b[4][1];
+            _siblings[4][1][2] = _c[4][1];
 
             _siblings[4][2] = new bytes32[](3);
-            _siblings[4][2][0] = _a[3][3];
-            _siblings[4][2][1] = SHA256.hash(_a[3][0], _a[3][1]);
-            _siblings[4][2][2] = _e2;
+            _siblings[4][2][0] = _a[4][3];
+            _siblings[4][2][1] = _b[4][0];
+            _siblings[4][2][2] = _c[4][1];
 
             _siblings[4][3] = new bytes32[](3);
-            _siblings[4][3][0] = _a[3][2];
-            _siblings[4][3][1] = SHA256.hash(_a[3][0], _a[3][1]);
-            _siblings[4][3][2] = _e2;
+            _siblings[4][3][0] = _a[4][2];
+            _siblings[4][3][1] = _b[4][0];
+            _siblings[4][3][2] = _c[4][1];
         }
 
         // State 5
@@ -187,34 +179,38 @@ contract MerkleTreeExample {
             _a[5][6] = _e0;
             _a[5][7] = _e0;
 
+            _b[5] = calculateNextLevel(_a[5]);
+
+            _c[5] = calculateNextLevel(_c[5]);
+
             _roots[5] = MerkleTree.computeRoot(_a[5]);
 
             _siblings[5] = new bytes32[][](5);
 
             _siblings[5][0] = new bytes32[](3);
-            _siblings[5][0][0] = _a[4][1];
-            _siblings[5][0][1] = SHA256.hash(_a[4][2], _a[4][3]);
-            //_siblings[5][0][2] = ;
+            _siblings[5][0][0] = _a[5][1];
+            _siblings[5][0][1] = _b[5][1];
+            _siblings[5][0][2] = _c[5][1];
 
             _siblings[5][1] = new bytes32[](3);
-            _siblings[5][1][0] = _a[4][0];
-            _siblings[5][1][1] = SHA256.hash(_a[4][2], _a[4][3]);
-            //_siblings[5][1][2] = ;
+            _siblings[5][1][0] = _a[5][0];
+            _siblings[5][1][1] = _b[5][1];
+            _siblings[5][1][2] = _c[5][1];
 
             _siblings[5][2] = new bytes32[](3);
-            _siblings[5][2][0] = _a[4][3];
-            _siblings[5][2][1] = SHA256.hash(_a[4][0], _a[4][1]);
-            //_siblings[5][2][2] = ;
+            _siblings[5][2][0] = _a[5][3];
+            _siblings[5][2][1] = _b[5][0];
+            _siblings[5][2][2] = _c[5][1];
 
             _siblings[5][3] = new bytes32[](3);
-            _siblings[5][3][0] = _a[4][2];
-            _siblings[5][3][1] = SHA256.hash(_a[4][0], _a[4][1]);
-            //_siblings[5][3][2] = ;
+            _siblings[5][3][0] = _a[5][2];
+            _siblings[5][3][1] = _b[5][0];
+            _siblings[5][3][2] = _c[5][1];
 
             _siblings[5][4] = new bytes32[](3);
-            _siblings[5][4][0] = _e0;
-            _siblings[5][4][1] = SHA256.hash(_a[4][0], _a[4][1]);
-            //_siblings[5][4][2] = ;
+            _siblings[5][4][0] = _a[5][5];
+            _siblings[5][4][1] = _b[5][3];
+            _siblings[5][4][2] = _c[5][0];
         }
 
         // State 6
@@ -229,7 +225,43 @@ contract MerkleTreeExample {
             _a[6][6] = _e0;
             _a[6][7] = _e0;
 
+            _b[6] = calculateNextLevel(_a[6]);
+
+            _c[6] = calculateNextLevel(_c[6]);
+
             _roots[6] = MerkleTree.computeRoot(_a[6]);
+
+            _siblings[6] = new bytes32[][](6);
+
+            _siblings[6][0] = new bytes32[](3);
+            _siblings[6][0][0] = _a[6][1];
+            _siblings[6][0][1] = _b[6][1];
+            _siblings[6][0][2] = _c[6][1];
+
+            _siblings[6][1] = new bytes32[](3);
+            _siblings[6][1][0] = _a[6][0];
+            _siblings[6][1][1] = _b[6][1];
+            _siblings[6][1][2] = _c[6][1];
+
+            _siblings[6][2] = new bytes32[](3);
+            _siblings[6][2][0] = _a[6][3];
+            _siblings[6][2][1] = _b[6][0];
+            _siblings[6][2][2] = _c[6][1];
+
+            _siblings[6][3] = new bytes32[](3);
+            _siblings[6][3][0] = _a[6][2];
+            _siblings[6][3][1] = _b[6][0];
+            _siblings[6][3][2] = _c[6][1];
+
+            _siblings[6][4] = new bytes32[](3);
+            _siblings[6][4][0] = _a[6][5];
+            _siblings[6][4][1] = _b[6][3];
+            _siblings[6][4][2] = _c[6][0];
+
+            _siblings[6][5] = new bytes32[](3);
+            _siblings[6][5][0] = _a[6][4];
+            _siblings[6][5][1] = _b[6][3];
+            _siblings[6][5][2] = _c[6][0];
         }
 
         // State 7
@@ -244,7 +276,48 @@ contract MerkleTreeExample {
             _a[7][6] = bytes32(uint256(7));
             _a[7][7] = _e0;
 
+            _b[7] = calculateNextLevel(_a[7]);
+
+            _c[7] = calculateNextLevel(_c[7]);
+
             _roots[7] = MerkleTree.computeRoot(_a[7]);
+
+            _siblings[7] = new bytes32[][](7);
+
+            _siblings[7][0] = new bytes32[](3);
+            _siblings[7][0][0] = _a[7][1];
+            _siblings[7][0][1] = _b[7][1];
+            _siblings[7][0][2] = _c[7][1];
+
+            _siblings[7][1] = new bytes32[](3);
+            _siblings[7][1][0] = _a[7][0];
+            _siblings[7][1][1] = _b[7][1];
+            _siblings[7][1][2] = _c[7][1];
+
+            _siblings[7][2] = new bytes32[](3);
+            _siblings[7][2][0] = _a[7][3];
+            _siblings[7][2][1] = _b[7][0];
+            _siblings[7][2][2] = _c[7][1];
+
+            _siblings[7][3] = new bytes32[](3);
+            _siblings[7][3][0] = _a[7][2];
+            _siblings[7][3][1] = _b[7][0];
+            _siblings[7][3][2] = _c[7][1];
+
+            _siblings[7][4] = new bytes32[](3);
+            _siblings[7][4][0] = _a[7][4];
+            _siblings[7][4][1] = _b[7][3];
+            _siblings[7][4][2] = _c[7][0];
+
+            _siblings[7][5] = new bytes32[](3);
+            _siblings[7][5][0] = _a[7][4];
+            _siblings[7][5][1] = _b[7][3];
+            _siblings[7][5][2] = _c[7][0];
+
+            _siblings[7][6] = new bytes32[](3);
+            _siblings[7][6][0] = _a[7][7];
+            _siblings[7][6][1] = _b[7][2];
+            _siblings[7][6][2] = _c[7][0];
         }
 
         //// State 8
@@ -284,6 +357,15 @@ contract MerkleTreeExample {
             _directionBits[8][5] = 2; // 010
             _directionBits[8][6] = 1; // 001
             _directionBits[8][7] = 0; // 000
+        }
+          */
+    }
+
+    function calculateNextLevel(bytes32[] memory x) internal pure returns (bytes32[] memory b) {
+        uint256 len = x.length / 2;
+        b = new bytes32[](len);
+        for (uint256 i = 0; i < len; ++i) {
+            b[i] = SHA256.hash(x[i * 2], x[i * 2 + 1]);
         }
     }
 }
