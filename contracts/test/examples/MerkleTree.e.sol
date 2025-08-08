@@ -322,7 +322,8 @@ contract MerkleTreeExample {
         }
 
         {
-            _directionBits[1] = new uint256[](0);
+            _directionBits[1] = new uint256[](1);
+            _directionBits[1][0] = 0; // 0
 
             _directionBits[2] = new uint256[](2);
             _directionBits[2][0] = 1; // 1

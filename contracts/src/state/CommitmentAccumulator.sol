@@ -107,7 +107,9 @@ contract CommitmentAccumulator is ICommitmentAccumulator {
         }
 
         // Check root existence.
-        if (!_roots.contains(root)) revert NonExistingRoot(root);
+        if (!_roots.contains(root)) {
+            revert NonExistingRoot(root);
+        }
 
         // Check that the commitment leaf and path reproduce the root.
         bytes32 computedRoot = path.processProof(directionBits, commitment);
