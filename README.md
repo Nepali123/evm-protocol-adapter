@@ -118,6 +118,14 @@ Append the
 - `--verify` flag for subsequent contract verification on Etherscan
 - `--account <ACCOUNT_NAME>` flag to use a previously imported keystore (see
   `cast wallet --help` for more info)
+  
+#### Local Anvil Deployment
+
+To run on a local anvil process use
+
+```sh
+forge script script/Emitter.s.sol:EmitterDeployAndEmit --rpc-url <anvil-url> --broadcast --private-key <anvil-private-keykey>>
+```
 
 ##### Block Explorer Verification
 
