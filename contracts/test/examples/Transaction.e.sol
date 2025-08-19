@@ -85,8 +85,6 @@ library TransactionExample {
     }
 
     function transaction() internal pure returns (Transaction memory txn) {
-        //ResourceForwarderCalldataPair[] memory emptyForwarderCallData = new ResourceForwarderCalldataPair[](0);
-
         Logic.VerifierInput[] memory logicVerifierInputs = new Logic.VerifierInput[](2);
         logicVerifierInputs[0] = logicVerifierInput({isConsumed: true});
         logicVerifierInputs[1] = logicVerifierInput({isConsumed: false});

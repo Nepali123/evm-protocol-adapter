@@ -15,20 +15,6 @@ library RiscZeroUtils {
     /// @return digest The journal digest.
     function toJournalDigest(Compliance.Instance memory instance) internal pure returns (bytes32 digest) {
         bytes4 eight = hex"08000000";
-        // bytes memory encodedInstance = abi.encodePacked(eight);
-        // encodedInstance = abi.encodePacked(encodedInstance, instance.consumed.nullifier);
-        // encodedInstance = abi.encodePacked(encodedInstance, eight);
-        // encodedInstance = abi.encodePacked(encodedInstance, instance.consumed.logicRef);
-        // encodedInstance = abi.encodePacked(encodedInstance, eight);
-        // encodedInstance = abi.encodePacked(encodedInstance, instance.consumed.commitmentTreeRoot);
-        // encodedInstance = abi.encodePacked(encodedInstance, eight);
-        // encodedInstance = abi.encodePacked(encodedInstance, instance.created.commitment);
-        // encodedInstance = abi.encodePacked(encodedInstance, eight);
-        // encodedInstance = abi.encodePacked(encodedInstance, instance.created.logicRef);
-        // encodedInstance = abi.encodePacked(encodedInstance, eight);
-        // encodedInstance = abi.encodePacked(encodedInstance, instance.unitDeltaX);
-        // encodedInstance = abi.encodePacked(encodedInstance, eight);
-        // encodedInstance = abi.encodePacked(encodedInstance, instance.unitDeltaY);
         bytes memory encodedInstance = abi.encodePacked(
             eight,
             instance.consumed.nullifier,
