@@ -9,6 +9,7 @@ use arm_risc0::logic_proof::LogicProof;
 use arm_risc0::proving_system::encode_seal;
 use arm_risc0::resource::Resource as ArmResource;
 use arm_risc0::transaction::{Delta, Transaction};
+use arm_risc0::utils::words_to_bytes;
 
 sol!(
     #[allow(missing_docs)]
@@ -45,8 +46,8 @@ impl From<ArmResource> for ProtocolAdapter::Resource {
 impl From<ExpirableBlob> for Logic::ExpirableBlob {
     fn from(expirable_blob: ExpirableBlob) -> Self {
         Self {
-            blob: insert_zeros(expirable_blob.blob).into(),
-            deletionCriterion: expirable_blob.deletion_criterion,
+            blob: words_to_bytes(&expirable_blob.blob).to_vec().into(),
+            deletionCriterion: expirable_blob.deletion_criterion as u8,
         }
     }
 }
@@ -54,10 +55,9 @@ impl From<ExpirableBlob> for Logic::ExpirableBlob {
 impl From<LogicInstance> for Logic::Instance {
     fn from(instance: LogicInstance) -> Self {
         Self {
-            tag: B256::from_slice(instance.tag.as_bytes()),
+            tag: B256::from_slice(words_to_bytes(&instance.tag)),
             isConsumed: instance.is_consumed,
-            actionTreeRoot: B256::from_slice(instance.root.as_bytes()),
-            ciphertext: Bytes::from(insert_zeros(instance.cipher)),
+            actionTreeRoot: B256::from_slice(words_to_bytes(&instance.root)),
             appData: instance
                 .app_data
                 .into_iter()
@@ -72,7 +72,7 @@ impl From<LogicProof> for Logic::VerifierInput {
         Self {
             proof: Bytes::from(encode_seal(&logic_proof.proof)),
             instance: logic_proof.get_instance().into(),
-            verifyingKey: B256::from_slice(&logic_proof.verifying_key),
+            verifyingKey: B256::from_slice(words_to_bytes(&logic_proof.verifying_key)),
         }
     }
 }
@@ -81,18 +81,16 @@ impl From<ComplianceInstance> for Compliance::Instance {
     fn from(instance: ComplianceInstance) -> Self {
         Self {
             consumed: Compliance::ConsumedRefs {
-                nullifier: B256::from_slice(instance.consumed_nullifier.as_bytes()),
-                logicRef: B256::from_slice(instance.consumed_logic_ref.as_bytes()),
-                commitmentTreeRoot: B256::from_slice(
-                    instance.consumed_commitment_tree_root.as_bytes(),
-                ),
+                nullifier: B256::from_slice(words_to_bytes(&instance.consumed_nullifier)),
+                logicRef: B256::from_slice(words_to_bytes(&instance.consumed_logic_ref)),
+                commitmentTreeRoot: B256::from_slice(words_to_bytes(&instance.consumed_commitment_tree_root)),
             },
             created: Compliance::CreatedRefs {
-                commitment: B256::from_slice(instance.created_commitment.as_bytes()),
-                logicRef: B256::from_slice(instance.created_logic_ref.as_bytes()),
+                commitment: B256::from_slice(words_to_bytes(&instance.created_commitment)),
+                logicRef: B256::from_slice(words_to_bytes(&instance.created_logic_ref)),
             },
-            unitDeltaX: B256::from_slice(instance.delta_x.as_bytes()),
-            unitDeltaY: B256::from_slice(instance.delta_y.as_bytes()),
+            unitDeltaX: B256::from_slice(words_to_bytes(&instance.delta_x)),
+            unitDeltaY: B256::from_slice(words_to_bytes(&instance.delta_y)),
         }
     }
 }
