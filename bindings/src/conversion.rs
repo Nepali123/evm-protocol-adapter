@@ -1,10 +1,10 @@
-use alloy::primitives::{Bytes, B256, U256};
+use alloy::primitives::{B256, Bytes, U256};
 use alloy::sol;
 
 use arm_risc0::action::Action;
 use arm_risc0::compliance::ComplianceInstance;
 use arm_risc0::compliance_unit::ComplianceUnit;
-use arm_risc0::logic_instance::{ExpirableBlob, LogicInstance};
+use arm_risc0::logic_instance::{AppData, ExpirableBlob, LogicInstance};
 use arm_risc0::logic_proof::LogicProof;
 use arm_risc0::proving_system::encode_seal;
 use arm_risc0::resource::Resource as ArmResource;
@@ -52,17 +52,40 @@ impl From<ExpirableBlob> for Logic::ExpirableBlob {
     }
 }
 
+impl From<AppData> for Logic::AppData {
+    fn from(app_data: AppData) -> Self {
+        Self {
+            discoveryPayload: app_data
+                .discovery_payload
+                .into_iter()
+                .map(Logic::ExpirableBlob::from)
+                .collect(),
+            resourcePayload: app_data
+                .resource_payload
+                .into_iter()
+                .map(Logic::ExpirableBlob::from)
+                .collect(),
+            externalPayload: app_data
+                .external_payload
+                .into_iter()
+                .map(Logic::ExpirableBlob::from)
+                .collect(),
+            applicationPayload: app_data
+                .application_payload
+                .into_iter()
+                .map(Logic::ExpirableBlob::from)
+                .collect(),
+        }
+    }
+}
+
 impl From<LogicInstance> for Logic::Instance {
     fn from(instance: LogicInstance) -> Self {
         Self {
             tag: B256::from_slice(words_to_bytes(&instance.tag)),
             isConsumed: instance.is_consumed,
             actionTreeRoot: B256::from_slice(words_to_bytes(&instance.root)),
-            appData: instance
-                .app_data
-                .into_iter()
-                .map(Logic::ExpirableBlob::from)
-                .collect(),
+            appData: instance.app_data.into(),
         }
     }
 }
@@ -83,7 +106,9 @@ impl From<ComplianceInstance> for Compliance::Instance {
             consumed: Compliance::ConsumedRefs {
                 nullifier: B256::from_slice(words_to_bytes(&instance.consumed_nullifier)),
                 logicRef: B256::from_slice(words_to_bytes(&instance.consumed_logic_ref)),
-                commitmentTreeRoot: B256::from_slice(words_to_bytes(&instance.consumed_commitment_tree_root)),
+                commitmentTreeRoot: B256::from_slice(words_to_bytes(
+                    &instance.consumed_commitment_tree_root,
+                )),
             },
             created: Compliance::CreatedRefs {
                 commitment: B256::from_slice(words_to_bytes(&instance.created_commitment)),
@@ -183,7 +208,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn print_tx() {
         dotenv().ok();
         env::var("BONSAI_API_KEY").expect("Couldn't read BONSAI_API_KEY");
