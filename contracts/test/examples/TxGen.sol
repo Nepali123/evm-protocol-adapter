@@ -27,7 +27,7 @@ library TxGen {
 
     struct ResourceAndAppData {
         Resource resource;
-        Logic.ExpirableBlob[] appData;
+        Logic.AppData appData;
     }
 
     struct ResourceLists {
@@ -78,13 +78,12 @@ library TxGen {
         bytes32 actionTreeRoot,
         Resource memory resource,
         bool isConsumed,
-        Logic.ExpirableBlob[] memory appData
+        Logic.AppData memory appData
     ) internal view returns (Logic.VerifierInput memory input) {
         Logic.Instance memory instance = Logic.Instance({
             tag: isConsumed ? resource.nullifier_({nullifierKey: 0}) : resource.commitment_(),
             isConsumed: isConsumed,
             actionTreeRoot: actionTreeRoot,
-            ciphertext: ciphertext(),
             appData: appData
         });
 
@@ -167,7 +166,12 @@ library TxGen {
                     labelRef: bytes32(i),
                     quantity: 1 + nonce
                 }),
-                appData: expirableBlobs()
+                appData: Logic.AppData({
+                discoveryPayload: new Logic.ExpirableBlob[](0),
+                resourcePayload: new Logic.ExpirableBlob[](0),
+                externalPayload: new Logic.ExpirableBlob[](0),
+                applicationPayload: new Logic.ExpirableBlob[](0)
+            })
             });
             created[i] = ResourceAndAppData({
                 resource: TxGen.mockResource({
@@ -176,7 +180,12 @@ library TxGen {
                     labelRef: bytes32(i),
                     quantity: 1 + nonce
                 }),
-                appData: expirableBlobs()
+                appData: Logic.AppData({
+                discoveryPayload: new Logic.ExpirableBlob[](0),
+                resourcePayload: new Logic.ExpirableBlob[](0),
+                externalPayload: new Logic.ExpirableBlob[](0),
+                applicationPayload: new Logic.ExpirableBlob[](0)
+            })
             });
         }
 
@@ -282,10 +291,6 @@ library TxGen {
             randSeed: 0,
             ephemeral: true
         });
-    }
-
-    function ciphertext() internal pure returns (bytes memory cipher) {
-        cipher = hex"3f0000007f000000bf000000ff000000";
     }
 
     function expirableBlobs() internal pure returns (Logic.ExpirableBlob[] memory blobs) {

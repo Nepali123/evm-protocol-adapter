@@ -67,8 +67,12 @@ library TransactionExample {
             tag: isConsumed ? _CONSUMED_NULLIFIER : _CREATED_COMMITMENT,
             isConsumed: isConsumed,
             actionTreeRoot: _ACTION_TREE_ROOT,
-            ciphertext: bytes(""), //ciphertext(),
-            appData: new Logic.ExpirableBlob[](0) //expirableBlobs()
+            appData: Logic.AppData({
+                discoveryPayload: new Logic.ExpirableBlob[](0),
+                resourcePayload: new Logic.ExpirableBlob[](0),
+                externalPayload: new Logic.ExpirableBlob[](0),
+                applicationPayload: new Logic.ExpirableBlob[](0)
+            })
         });
     }
 

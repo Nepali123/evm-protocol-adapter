@@ -23,8 +23,7 @@ library Logic {
         bytes32 tag;
         bool isConsumed;
         bytes32 actionTreeRoot;
-        bytes ciphertext;
-        ExpirableBlob[] appData;
+        AppData appData;
     }
 
     /// @notice A struct containing all information required to verify a logic proof.
@@ -37,6 +36,17 @@ library Logic {
         bytes proof;
         Instance instance;
         bytes32 verifyingKey;
+    }
+
+    /// @notice A struct containing payloads of different kinds.
+    /// @param resourcePayload The field for encoding resource plaintexts.
+    /// @param discoeryPayload The field for encoding random data for detection purposes..
+    /// @param externalPayload The field for encoding information for EVM interop.
+    struct AppData {
+        ExpirableBlob[] resourcePayload;
+        ExpirableBlob[] discoveryPayload;
+        ExpirableBlob[] externalPayload;
+        ExpirableBlob[] applicationPayload;
     }
 
     /// @notice A blob with a deletion criterion attached.

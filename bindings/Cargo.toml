@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-arm_risc0 = { git = "https://github.com/anoma/arm-risc0.git", rev = "d53d578c9370374da1ff23ccbcf4bc031b6d752c", package = "arm", features = [
+arm_risc0 = { git = "https://github.com/anoma/arm-risc0.git", rev = "d7d9cfe6cddc3e171ef2cefb59c0345af876d9e0", package = "arm", features = [
     "groth16_prover",
 ] }
 dotenv = "0.15"
