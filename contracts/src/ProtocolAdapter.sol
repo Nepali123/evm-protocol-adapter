@@ -83,15 +83,8 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                 Logic.Instance calldata instance = action.logicVerifierInputs[j].instance;
 
                 if (instance.appData.externalPayload.length != 0) {
-                    ResourceForwarderCalldataPair memory pair = abi.decode(instance.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
-                    if (ComputableComponents.commitment_(pair.carrier) != instance.tag) {
-                        revert CalldataCarrierTagMismatch({actual: instance.tag, expected: ComputableComponents.commitment_(pair.carrier)});
-                    }
-
-                    bytes32 fetchedKind = IForwarder(pair.call.untrustedForwarder).calldataCarrierResourceKind();
-                    if (ComputableComponents.kind_(pair.carrier) != fetchedKind) {
-                        revert CalldataCarrierKindMismatch({expected: fetchedKind, actual: ComputableComponents.kind_(pair.carrier)});
-                    }
+                    ResourceForwarderCalldataPair memory pair =
+                        abi.decode(instance.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
                     _executeForwarderCall(pair.call);
                 }
 
@@ -141,10 +134,7 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
         }
 
         // solhint-disable-next-line max-line-length
-        emit ForwarderCallExecuted({
-        untrustedForwarder: call.untrustedForwarder,
-            input: call.input,
-            output: call.output});
+        emit ForwarderCallExecuted({untrustedForwarder: call.untrustedForwarder, input: call.input, output: call.output});
     }
 
     /// @notice An internal function to verify a transaction.
@@ -178,11 +168,6 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
             if (nResources != nCUs * 2) {
                 revert ResourceCountMismatch({expected: nResources, actual: nCUs});
             }
-
-            /*
-            TODO! Uncomment when fixing EVM interop in https://github.com/anoma/evm-protocol-adapter/pull/162
-            _verifyForwarderCalls(action);
-            */
 
             // Compliance Proofs
             {
@@ -222,7 +207,7 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
 
                     _verifyComplianceProof(complianceVerifierInput);
 
-                    // Check the logic ref consistency
+                    // Check the logic ref consistency and calldata
                     {
                         Logic.VerifierInput calldata logicVerifierInput = action.logicVerifierInputs.lookup(nf);
 
@@ -235,6 +220,10 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                                 expected: logicVerifierInput.verifyingKey,
                                 actual: complianceVerifierInput.instance.consumed.logicRef
                             });
+                        }
+
+                        if (logicVerifierInput.instance.appData.externalPayload.length != 0) {
+                            _verifyForwarderCalls(logicVerifierInput.instance);
                         }
                     }
                     {
@@ -249,6 +238,10 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                                 expected: logicVerifierInput.verifyingKey,
                                 actual: complianceVerifierInput.instance.created.logicRef
                             });
+                        }
+
+                        if (logicVerifierInput.instance.appData.externalPayload.length != 0) {
+                            _verifyForwarderCalls(logicVerifierInput.instance);
                         }
                     }
 
@@ -340,20 +333,21 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
         sum = transactionDelta.add(unitDelta);
     }
 
-    /// @dev This method is added to force the abi json to contain the resource struct definition. And can be removed
-    /// when the `_verifyForwarderCalls` and `_executeForwarderCall` are reintroduced.
-    // TODO! Remove when fixing EVM interop in https://github.com/anoma/evm-protocol-adapter/pull/162
-    // solhint-disable-next-line max-line-length, ordering, comprehensive-interface, use-natspec
-    function dummyResource(Resource calldata res) public pure returns (Resource memory dummy) {
-        dummy = Resource({
-            logicRef: res.logicRef,
-            labelRef: res.labelRef,
-            valueRef: res.valueRef,
-            nullifierKeyCommitment: bytes32(0),
-            quantity: 0,
-            nonce: 0,
-            randSeed: 0,
-            ephemeral: true
-        });
+    /// @notice Verifies the forwarder calls of a given action.
+    /// @param instance The instance to verify the forwarder calls for.
+    function _verifyForwarderCalls(Logic.Instance calldata instance) internal view {
+        ResourceForwarderCalldataPair memory pair =
+            abi.decode(instance.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
+        if (ComputableComponents.commitment_(pair.carrier) != instance.tag) {
+            revert CalldataCarrierTagMismatch({
+                actual: instance.tag,
+                expected: ComputableComponents.commitment_(pair.carrier)
+            });
+        }
+
+        bytes32 fetchedKind = IForwarder(pair.call.untrustedForwarder).calldataCarrierResourceKind();
+        if (ComputableComponents.kind_(pair.carrier) != fetchedKind) {
+            revert CalldataCarrierKindMismatch({expected: fetchedKind, actual: ComputableComponents.kind_(pair.carrier)});
+        }
     }
 }
