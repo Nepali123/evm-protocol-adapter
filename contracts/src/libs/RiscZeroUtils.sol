@@ -3,6 +3,7 @@ pragma solidity ^0.8.30;
 
 import {Compliance} from "../proving/Compliance.sol";
 import {Logic} from "../proving/Logic.sol";
+import "forge-std/console.sol";
 
 /// @title RiscZeroUtils
 /// @author Anoma Foundation, 2025
@@ -13,7 +14,23 @@ library RiscZeroUtils {
     /// @param instance The compliance instance.
     /// @return digest The journal digest.
     function toJournalDigest(Compliance.Instance memory instance) internal pure returns (bytes32 digest) {
-        digest = sha256(abi.encode(instance));
+        bytes4 eight = hex"08000000";
+        bytes memory encodedInstance = abi.encodePacked(eight);
+        encodedInstance = abi.encodePacked(encodedInstance, instance.consumed.nullifier);
+        encodedInstance = abi.encodePacked(encodedInstance, eight);
+        encodedInstance = abi.encodePacked(encodedInstance, instance.consumed.logicRef);
+        encodedInstance = abi.encodePacked(encodedInstance, eight);
+        encodedInstance = abi.encodePacked(encodedInstance, instance.consumed.commitmentTreeRoot);
+        encodedInstance = abi.encodePacked(encodedInstance, eight);
+        encodedInstance = abi.encodePacked(encodedInstance, instance.created.commitment);
+        encodedInstance = abi.encodePacked(encodedInstance, eight);
+        encodedInstance = abi.encodePacked(encodedInstance, instance.created.logicRef);
+        encodedInstance = abi.encodePacked(encodedInstance, eight);
+        encodedInstance = abi.encodePacked(encodedInstance, instance.unitDeltaX);
+        encodedInstance = abi.encodePacked(encodedInstance, eight);
+        encodedInstance = abi.encodePacked(encodedInstance, instance.unitDeltaY);
+        console.logBytes(encodedInstance);
+        digest = sha256(encodedInstance);
     }
 
     /// @notice Calculates the digest of the logic instance (journal).

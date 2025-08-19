@@ -221,6 +221,7 @@ mod tests {
         let n_actions = 1;
 
         let raw_tx = arm_risc0::transaction::generate_test_transaction(n_actions);
+        println!("{:?}", raw_tx);
         let evm_tx = ProtocolAdapter::Transaction::from(raw_tx);
         std::fs::write(
             format!("test_tx{n_actions:02}.json"),
