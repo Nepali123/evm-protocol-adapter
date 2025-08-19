@@ -5,7 +5,7 @@ import {ReentrancyGuardTransient} from "@openzeppelin-contracts/utils/Reentrancy
 import {RiscZeroVerifierEmergencyStop} from "@risc0-ethereum/RiscZeroVerifierEmergencyStop.sol";
 import {RiscZeroVerifierRouter} from "@risc0-ethereum/RiscZeroVerifierRouter.sol";
 
-//import {IForwarder} from "./interfaces/IForwarder.sol";
+import {IForwarder} from "./interfaces/IForwarder.sol";
 import {IProtocolAdapter} from "./interfaces/IProtocolAdapter.sol";
 
 import {ComputableComponents} from "./libs/ComputableComponents.sol";
@@ -20,7 +20,7 @@ import {CommitmentAccumulator} from "./state/CommitmentAccumulator.sol";
 
 import {NullifierSet} from "./state/NullifierSet.sol";
 
-import {Action, /*ForwarderCalldata,*/ Resource, Transaction} from "./Types.sol";
+import {Action, ForwarderCalldata, Resource, Transaction, ResourceForwarderCalldataPair} from "./Types.sol";
 
 /// @title ProtocolAdapter
 /// @author Anoma Foundation, 2025
@@ -49,9 +49,7 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
     error RiscZeroVerifierStopped();
 
     error CalldataCarrierKindMismatch(bytes32 expected, bytes32 actual);
-    error CalldataCarrierAppDataMismatch(bytes32 expected, bytes32 actual);
-    error CalldataCarrierLabelMismatch(bytes32 expected, bytes32 actual);
-    error CalldataCarrierCommitmentNotFound(bytes32 commitment);
+    error CalldataCarrierTagMismatch(bytes32 expected, bytes32 actual);
 
     /// @notice Constructs the protocol adapter contract.
     /// @param riscZeroVerifierRouter The RISC Zero verifier router contract.
@@ -84,19 +82,25 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
             for (uint256 j = 0; j < nResources; ++j) {
                 Logic.Instance calldata instance = action.logicVerifierInputs[j].instance;
 
+                if (instance.appData.externalPayload.length != 0) {
+                    ResourceForwarderCalldataPair memory pair = abi.decode(instance.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
+                    if (ComputableComponents.commitment_(pair.carrier) != instance.tag) {
+                        revert CalldataCarrierTagMismatch({actual: instance.tag, expected: ComputableComponents.commitment_(pair.carrier)});
+                    }
+
+                    bytes32 fetchedKind = IForwarder(pair.call.untrustedForwarder).calldataCarrierResourceKind();
+                    if (ComputableComponents.kind_(pair.carrier) != fetchedKind) {
+                        revert CalldataCarrierKindMismatch({expected: fetchedKind, actual: ComputableComponents.kind_(pair.carrier)});
+                    }
+                    _executeForwarderCall(pair.call);
+                }
+
                 if (instance.isConsumed) {
                     _addNullifier(instance.tag);
                 } else {
                     newRoot = _addCommitment(instance.tag);
                 }
             }
-
-            /* // TODO! Uncomment
-            uint256 nForwarderCalls = action.resourceCalldataPairs.length;
-            for (uint256 j = 0; j < nForwarderCalls; ++j) {
-                _executeForwarderCall(action.resourceCalldataPairs[j].call);
-            }
-            */
         }
 
         if (newRoot != 0) {
@@ -126,10 +130,9 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
         verifierSelector = 0xbb001d44;
     }
 
-    /* // TODO! Uncomment
     /// @notice Executes a call to a forwarder contracts.
     /// @param call The calldata to conduct the forwarder call.
-    function _executeForwarderCall(ForwarderCalldata calldata call) internal {
+    function _executeForwarderCall(ForwarderCalldata memory call) internal {
         // slither-disable-next-line calls-loop
         bytes memory output = IForwarder(call.untrustedForwarder).forwardCall(call.input);
 
@@ -139,11 +142,10 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
 
         // solhint-disable-next-line max-line-length
         emit ForwarderCallExecuted({
-        untrustedForwarder: call.untrustedForwarder, 
+        untrustedForwarder: call.untrustedForwarder,
             input: call.input,
             output: call.output});
     }
-    */
 
     /// @notice An internal function to verify a transaction.
     /// @param transaction The transaction to verify.
@@ -323,59 +325,6 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
     {
         Delta.verify({proof: proof, instance: transactionDelta, verifyingKey: Delta.computeVerifyingKey(tags)});
     }
-
-    /*
-    function dummyResource(Resource calldata res) public pure returns (Resource memory dummy) {
-        dummy = Resource({
-            logicRef: res.logicRef,
-            labelRef: res.labelRef,
-            valueRef: res.valueRef,
-            nullifierKeyCommitment: bytes32(0),
-            quantity: 0,
-            nonce: 0,
-            randSeed: 0,
-            ephemeral: true
-        });
-    }
-    */
-
-    /* 
-    TODO! Uncomment when fixing EVM interop in https://github.com/anoma/evm-protocol-adapter/pull/162
-    /// @notice Verifies the forwarder calls of a given action.
-    /// @param action The action to verify the forwarder calls for.
-    function _verifyForwarderCalls(Action calldata action) internal view {
-        uint256 nForwarderCalls = action.resourceCalldataPairs.length;
-        for (uint256 i = 0; i < nForwarderCalls; ++i) {
-            Resource calldata carrier = action.resourceCalldataPairs[i].carrier;
-            ForwarderCalldata calldata call = action.resourceCalldataPairs[i].call;
-
-            // Kind integrity check
-
-            {
-                bytes32 passedKind = carrier.kind();
-
-                // slither-disable-next-line calls-loop
-                bytes32 fetchedKind = IForwarder(call.untrustedForwarder).calldataCarrierResourceKind();
-
-                if (passedKind != fetchedKind) {
-                    revert CalldataCarrierKindMismatch({expected: fetchedKind, actual: passedKind});
-                }
-            }
-
-            // AppData integrity check
-            {
-                bytes32 expectedAppDataHash = keccak256(abi.encode(call.untrustedForwarder, call.input, call.output));
-
-                // Lookup the first appData entry.
-                bytes32 actualAppDataHash =
-                    keccak256(action.logicVerifierInputs.lookup(carrier.commitment()).instance.appData[0].blob);
-
-                if (actualAppDataHash != expectedAppDataHash) {
-                    revert CalldataCarrierAppDataMismatch({actual: actualAppDataHash, expected: expectedAppDataHash});
-                }
-            }
-        }
-    }*/
 
     /// @notice An internal function adding a unit delta to the transactionDelta.
     /// @param transactionDelta The transaction delta.
