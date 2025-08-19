@@ -167,11 +167,11 @@ library TxGen {
                     quantity: 1 + nonce
                 }),
                 appData: Logic.AppData({
-                discoveryPayload: new Logic.ExpirableBlob[](0),
-                resourcePayload: new Logic.ExpirableBlob[](0),
-                externalPayload: new Logic.ExpirableBlob[](0),
-                applicationPayload: new Logic.ExpirableBlob[](0)
-            })
+                    discoveryPayload: new Logic.ExpirableBlob[](0),
+                    resourcePayload: new Logic.ExpirableBlob[](0),
+                    externalPayload: new Logic.ExpirableBlob[](0),
+                    applicationPayload: new Logic.ExpirableBlob[](0)
+                })
             });
             created[i] = ResourceAndAppData({
                 resource: TxGen.mockResource({
@@ -181,11 +181,11 @@ library TxGen {
                     quantity: 1 + nonce
                 }),
                 appData: Logic.AppData({
-                discoveryPayload: new Logic.ExpirableBlob[](0),
-                resourcePayload: new Logic.ExpirableBlob[](0),
-                externalPayload: new Logic.ExpirableBlob[](0),
-                applicationPayload: new Logic.ExpirableBlob[](0)
-            })
+                    discoveryPayload: new Logic.ExpirableBlob[](0),
+                    resourcePayload: new Logic.ExpirableBlob[](0),
+                    externalPayload: new Logic.ExpirableBlob[](0),
+                    applicationPayload: new Logic.ExpirableBlob[](0)
+                })
             });
         }
 

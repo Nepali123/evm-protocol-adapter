@@ -74,6 +74,7 @@ library RiscZeroUtils {
         }
 
         nBlobs = uint32(instance.appData.resourcePayload.length);
+        encodedAppData = abi.encodePacked(encodedAppData, toRiscZero(nBlobs));
         {
             for (uint256 i = 0; i < nBlobs; ++i) {
                 bytes memory blobEncoded = abi.encodePacked(
@@ -86,6 +87,7 @@ library RiscZeroUtils {
         }
 
         nBlobs = uint32(instance.appData.externalPayload.length);
+        encodedAppData = abi.encodePacked(encodedAppData, toRiscZero(nBlobs));
         {
             for (uint256 i = 0; i < nBlobs; ++i) {
                 bytes memory blobEncoded = abi.encodePacked(
@@ -98,6 +100,7 @@ library RiscZeroUtils {
         }
 
         nBlobs = uint32(instance.appData.applicationPayload.length);
+        encodedAppData = abi.encodePacked(encodedAppData, toRiscZero(nBlobs));
         {
             for (uint256 i = 0; i < nBlobs; ++i) {
                 bytes memory blobEncoded = abi.encodePacked(
