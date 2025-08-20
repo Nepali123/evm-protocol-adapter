@@ -17,7 +17,6 @@ import {Transaction, Action, Resource} from "../../src/Types.sol";
 library TxGen {
     using ComputableComponents for Resource;
     using RiscZeroUtils for Compliance.Instance;
-    using RiscZeroUtils for Logic.Instance;
     using Logic for Logic.VerifierInput[];
     using Delta for uint256[2];
 
@@ -80,17 +79,11 @@ library TxGen {
         bool isConsumed,
         Logic.AppData memory appData
     ) internal view returns (Logic.VerifierInput memory input) {
-        Logic.Instance memory instance = Logic.Instance({
-            tag: isConsumed ? resource.nullifier_({nullifierKey: 0}) : resource.commitment_(),
-            isConsumed: isConsumed,
-            actionTreeRoot: actionTreeRoot,
-            appData: appData
-        });
-
         input = Logic.VerifierInput({
-            proof: mockVerifier.mockProve({imageId: resource.logicRef, journalDigest: instance.toJournalDigest()}).seal,
-            instance: instance,
-            verifyingKey: resource.logicRef
+            tag: isConsumed ? resource.nullifier_({nullifierKey: 0}) : resource.commitment_(),
+            verifyingKey: resource.logicRef,
+            appData: appData,
+            proof: abi.encodePacked(uint32(0))
         });
     }
 

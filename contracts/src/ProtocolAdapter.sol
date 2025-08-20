@@ -31,7 +31,7 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
     using TagLookup for bytes32[];
     using ComputableComponents for Resource;
     using RiscZeroUtils for Compliance.Instance;
-    using RiscZeroUtils for Logic.Instance;
+    using RiscZeroUtils for Logic.VerifierInput;
     using Logic for Logic.VerifierInput[];
     using Delta for uint256[2];
 
@@ -80,19 +80,20 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
 
             uint256 nResources = action.logicVerifierInputs.length;
             for (uint256 j = 0; j < nResources; ++j) {
-                Logic.Instance calldata instance = action.logicVerifierInputs[j].instance;
+                Logic.VerifierInput calldata input = action.logicVerifierInputs[j];
 
-                if (instance.appData.externalPayload.length != 0) {
+                if (input.appData.externalPayload.length != 0) {
                     ResourceForwarderCalldataPair memory pair =
-                        abi.decode(instance.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
+                        abi.decode(input.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
                     _executeForwarderCall(pair.call);
                 }
+            }
 
-                if (instance.isConsumed) {
-                    _addNullifier(instance.tag);
-                } else {
-                    newRoot = _addCommitment(instance.tag);
-                }
+            uint256 nCUs = action.complianceVerifierInputs.length;
+            for (uint256 k = 0; k < nCUs; ++k) {
+                Compliance.Instance calldata instance = action.complianceVerifierInputs[k].instance;
+                _addNullifier(instance.consumed.nullifier);
+                newRoot = _addCommitment(instance.created.commitment);
             }
         }
 
@@ -211,10 +212,6 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                     {
                         Logic.VerifierInput calldata logicVerifierInput = action.logicVerifierInputs.lookup(nf);
 
-                        if (!logicVerifierInput.instance.isConsumed) {
-                            revert ResourceLifecycleMismatch({expected: true});
-                        }
-
                         if (complianceVerifierInput.instance.consumed.logicRef != logicVerifierInput.verifyingKey) {
                             revert LogicRefMismatch({
                                 expected: logicVerifierInput.verifyingKey,
@@ -222,16 +219,12 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                             });
                         }
 
-                        if (logicVerifierInput.instance.appData.externalPayload.length != 0) {
-                            _verifyForwarderCalls(logicVerifierInput.instance);
+                        if (logicVerifierInput.appData.externalPayload.length != 0) {
+                            _verifyForwarderCalls(logicVerifierInput);
                         }
                     }
                     {
                         Logic.VerifierInput calldata logicVerifierInput = action.logicVerifierInputs.lookup(cm);
-
-                        if (logicVerifierInput.instance.isConsumed) {
-                            revert ResourceLifecycleMismatch({expected: false});
-                        }
 
                         if (complianceVerifierInput.instance.created.logicRef != logicVerifierInput.verifyingKey) {
                             revert LogicRefMismatch({
@@ -240,8 +233,8 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                             });
                         }
 
-                        if (logicVerifierInput.instance.appData.externalPayload.length != 0) {
-                            _verifyForwarderCalls(logicVerifierInput.instance);
+                        if (logicVerifierInput.appData.externalPayload.length != 0) {
+                            _verifyForwarderCalls(logicVerifierInput);
                         }
                     }
 
@@ -258,18 +251,17 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
 
             // Logic Proofs
             {
-                bytes32 computedActionTreeRoot = actionTreeTags.computeRoot(_ACTION_TAG_TREE_DEPTH);
+                bytes32 actionTreeRoot = actionTreeTags.computeRoot(_ACTION_TAG_TREE_DEPTH);
 
                 for (uint256 j = 0; j < nResources; ++j) {
                     Logic.VerifierInput calldata input = action.logicVerifierInputs[j];
-
-                    // Check root consistency
-                    if (input.instance.actionTreeRoot != computedActionTreeRoot) {
-                        revert RootMismatch({expected: computedActionTreeRoot, actual: input.instance.actionTreeRoot});
+                    if (TagLookup.isFoundInEvenOrOddPosition(actionTreeTags, input.tag, true)) {
+                        // Check the logic proof for created resource
+                        _verifyLogicProof(input, actionTreeRoot, false);
+                    } else {
+                        // Else the tag is a nullifier
+                        _verifyLogicProof(input, actionTreeRoot, true);
                     }
-
-                    // Check the logic proof
-                    _verifyLogicProof(input);
                 }
             }
         }
@@ -297,12 +289,12 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
     /// @notice An internal function verifying a RISC0 logic proof.
     /// @param input The verifier input of the logic proof.
     /// @dev This function is virtual to allow for it to be overridden, e.g., to mock proofs with a mock verifier.
-    function _verifyLogicProof(Logic.VerifierInput calldata input) internal view virtual {
+    function _verifyLogicProof(Logic.VerifierInput calldata input, bytes32 root, bool consumed) internal view virtual {
         // slither-disable-next-line calls-loop
         _TRUSTED_RISC_ZERO_VERIFIER_ROUTER.verify({
             seal: input.proof,
             imageId: input.verifyingKey,
-            journalDigest: input.instance.toJournalDigest()
+            journalDigest: RiscZeroUtils.toJournalDigest(input, root, consumed)
         });
     }
 
@@ -334,13 +326,13 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
     }
 
     /// @notice Verifies the forwarder calls of a given action.
-    /// @param instance The instance to verify the forwarder calls for.
-    function _verifyForwarderCalls(Logic.Instance calldata instance) internal view {
+    /// @param input The input to verify the forwarder calls for.
+    function _verifyForwarderCalls(Logic.VerifierInput calldata input) internal view {
         ResourceForwarderCalldataPair memory pair =
-            abi.decode(instance.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
-        if (ComputableComponents.commitment_(pair.carrier) != instance.tag) {
+            abi.decode(input.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
+        if (ComputableComponents.commitment_(pair.carrier) != input.tag) {
             revert CalldataCarrierTagMismatch({
-                actual: instance.tag,
+                actual: input.tag,
                 expected: ComputableComponents.commitment_(pair.carrier)
             });
         }

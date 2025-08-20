@@ -62,25 +62,17 @@ library TransactionExample {
         unit = Compliance.VerifierInput({proof: _COMPLIANCE_PROOF, instance: complianceInstance()});
     }
 
-    function logicInstance(bool isConsumed) internal pure returns (Logic.Instance memory instance) {
-        instance = Logic.Instance({
+    function logicVerifierInput(bool isConsumed) internal pure returns (Logic.VerifierInput memory input) {
+        input = Logic.VerifierInput({
             tag: isConsumed ? _CONSUMED_NULLIFIER : _CREATED_COMMITMENT,
-            isConsumed: isConsumed,
-            actionTreeRoot: _ACTION_TREE_ROOT,
+            verifyingKey: isConsumed ? _CONSUMED_LOGIC_REF : _CREATED_LOGIC_REF,
             appData: Logic.AppData({
                 discoveryPayload: new Logic.ExpirableBlob[](0),
                 resourcePayload: new Logic.ExpirableBlob[](0),
                 externalPayload: new Logic.ExpirableBlob[](0),
                 applicationPayload: new Logic.ExpirableBlob[](0)
-            })
-        });
-    }
-
-    function logicVerifierInput(bool isConsumed) internal pure returns (Logic.VerifierInput memory input) {
-        input = Logic.VerifierInput({
-            proof: isConsumed ? _CONSUMED_LOGIC_PROOF : _CREATED_LOGIC_PROOF,
-            instance: logicInstance(isConsumed),
-            verifyingKey: isConsumed ? _CONSUMED_LOGIC_REF : _CREATED_LOGIC_REF
+            }),
+            proof: isConsumed ? _CONSUMED_LOGIC_PROOF : _CREATED_LOGIC_PROOF
         });
     }
 

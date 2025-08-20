@@ -229,36 +229,4 @@ contract ProtocolAdapterMockTest is Test {
         vm.expectRevert(abi.encodeWithSelector(TagLookup.CommitmentDuplicated.selector, duplicatedCm), address(_mockPa));
         _mockPa.verify(txn);
     }
-
-    function test_verify_reverts_on_wrong_isConsumed_value_in_consumed_resource_logic_proof() public {
-        (Transaction memory txn,) = _mockVerifier.transaction({
-            nonce: 0,
-            configs: TxGen.generateActionConfigs({nActions: 2, nCUs: 2}),
-            commitmentTreeDepth: _TEST_COMMITMENT_TREE_DEPTH
-        });
-
-        bool expected = true;
-        txn.actions[1].logicVerifierInputs[0].instance.isConsumed = !expected;
-
-        vm.expectRevert(
-            abi.encodeWithSelector(ProtocolAdapter.ResourceLifecycleMismatch.selector, expected), (address(_mockPa))
-        );
-        _mockPa.verify(txn);
-    }
-
-    function test_verify_reverts_on_wrong_isConsumed_value_in_created_resource_logic_proof() public {
-        (Transaction memory txn,) = _mockVerifier.transaction({
-            nonce: 0,
-            configs: TxGen.generateActionConfigs({nActions: 2, nCUs: 2}),
-            commitmentTreeDepth: _TEST_COMMITMENT_TREE_DEPTH
-        });
-
-        bool expected = false;
-        txn.actions[1].logicVerifierInputs[1].instance.isConsumed = !expected;
-
-        vm.expectRevert(
-            abi.encodeWithSelector(ProtocolAdapter.ResourceLifecycleMismatch.selector, expected), (address(_mockPa))
-        );
-        _mockPa.verify(txn);
-    }
 }
