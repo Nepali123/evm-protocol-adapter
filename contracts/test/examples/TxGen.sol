@@ -87,7 +87,10 @@ library TxGen {
             proof: abi.encodePacked(uint32(0))
         });
 
-        input.proof = mockVerifier.mockProve({imageId: resource.logicRef, journalDigest: input.toJournalDigest(actionTreeRoot, isConsumed)}).seal;
+        input.proof = mockVerifier.mockProve({
+            imageId: resource.logicRef,
+            journalDigest: input.toJournalDigest(actionTreeRoot, isConsumed)
+        }).seal;
     }
 
     function createAction(

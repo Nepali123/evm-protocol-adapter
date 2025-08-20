@@ -288,6 +288,8 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
 
     /// @notice An internal function verifying a RISC0 logic proof.
     /// @param input The verifier input of the logic proof.
+    /// @param root The root of the action tree containing all tags of an action.
+    /// @param consumed Bool indicating whether the tag is a commitment or a nullifier.
     /// @dev This function is virtual to allow for it to be overridden, e.g., to mock proofs with a mock verifier.
     function _verifyLogicProof(Logic.VerifierInput calldata input, bytes32 root, bool consumed) internal view virtual {
         // slither-disable-next-line calls-loop
@@ -325,25 +327,8 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
         sum = transactionDelta.add(unitDelta);
     }
 
-    /// @notice Verifies the forwarder calls of a given action.
-    /// @param input The input to verify the forwarder calls for.
-    function _verifyForwarderCalls(Logic.VerifierInput calldata input) internal view {
-        ResourceForwarderCalldataPair memory pair =
-            abi.decode(input.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
-        if (ComputableComponents.commitment_(pair.carrier) != input.tag) {
-            revert CalldataCarrierTagMismatch({
-                actual: input.tag,
-                expected: ComputableComponents.commitment_(pair.carrier)
-            });
-        }
-
-        bytes32 fetchedKind = IForwarder(pair.call.untrustedForwarder).calldataCarrierResourceKind();
-        if (ComputableComponents.kind_(pair.carrier) != fetchedKind) {
-            revert CalldataCarrierKindMismatch({expected: fetchedKind, actual: ComputableComponents.kind_(pair.carrier)});
-        }
-    }
-
-        /// @dev This method is added to force the abi json to contain the resource struct definition. And can be removed
+    /// @dev This method is added to force the abi json to contain the resource struct definition.
+    /// And can be removed
     /// when the `_verifyForwarderCalls` and `_executeForwarderCall` are reintroduced.
     // TODO! Remove when fixing EVM interop in https://github.com/anoma/evm-protocol-adapter/pull/162
     // solhint-disable-next-line max-line-length, ordering, comprehensive-interface, use-natspec
@@ -358,5 +343,24 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
             randSeed: 0,
             ephemeral: true
         });
+    }
+
+    /// @notice Verifies the forwarder calls of a given action.
+    /// @param input The input to verify the forwarder calls for.
+    function _verifyForwarderCalls(Logic.VerifierInput calldata input) internal view {
+        ResourceForwarderCalldataPair memory pair =
+            abi.decode(input.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
+        if (ComputableComponents.commitment_(pair.carrier) != input.tag) {
+            revert CalldataCarrierTagMismatch({
+                actual: input.tag,
+                expected: ComputableComponents.commitment_(pair.carrier)
+            });
+        }
+
+        bytes32 fetchedKind = IForwarder(pair.call.untrustedForwarder).calldataCarrierResourceKind();
+        if (ComputableComponents.kind_(pair.carrier) != fetchedKind) {
+            revert CalldataCarrierKindMismatch({expected: fetchedKind,
+                    actual: ComputableComponents.kind_(pair.carrier)});
+        }
     }
 }

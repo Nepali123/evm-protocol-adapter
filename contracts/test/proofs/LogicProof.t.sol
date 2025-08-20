@@ -26,12 +26,20 @@ contract LogicProofTest is Test {
     function test_verify_example_logic_proof_consumed() public view {
         Logic.VerifierInput memory input = TransactionExample.logicVerifierInput({isConsumed: true});
         bytes32 root = TransactionExample.treeRoot();
-            _router.verify({seal: input.proof, imageId: input.verifyingKey, journalDigest: input.toJournalDigest(root, true)});
+        _router.verify({
+            seal: input.proof,
+            imageId: input.verifyingKey,
+            journalDigest: input.toJournalDigest(root, true)
+        });
     }
 
     function test_verify_example_logic_proof_created() public view {
         Logic.VerifierInput memory input = TransactionExample.logicVerifierInput({isConsumed: false});
         bytes32 root = TransactionExample.treeRoot();
-        _router.verify({seal: input.proof, imageId: input.verifyingKey, journalDigest: input.toJournalDigest(root, false)});
+        _router.verify({
+            seal: input.proof,
+            imageId: input.verifyingKey,
+            journalDigest: input.toJournalDigest(root, false)
+        });
     }
 }
