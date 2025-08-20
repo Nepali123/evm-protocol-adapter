@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
+import {MerkleTree} from "../../src/libs/MerkleTree.sol";
 import {Compliance} from "../../src/proving/Compliance.sol";
 import {Logic} from "../../src/proving/Logic.sol";
 import {Transaction, /*ResourceForwarderCalldataPair,*/ Action} from "../../src/Types.sol";
@@ -86,8 +87,15 @@ library TransactionExample {
         Action[] memory actions = new Action[](1);
         actions[0] =
             Action({logicVerifierInputs: logicVerifierInputs, complianceVerifierInputs: complianceVerifierInputs});
-        // TODO! resourceCalldataPairs: emptyForwarderCallData
 
         txn = Transaction({actions: actions, deltaProof: _DELTA_PROOF});
+    }
+
+    function treeRoot() internal pure returns (bytes32 root) {
+        bytes32[] memory leaves = new bytes32[](2);
+        leaves[0] = _CONSUMED_NULLIFIER;
+        leaves[1] = _CREATED_COMMITMENT;
+
+        root = MerkleTree.computeRoot(leaves, 4);
     }
 }

@@ -294,7 +294,7 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
         _TRUSTED_RISC_ZERO_VERIFIER_ROUTER.verify({
             seal: input.proof,
             imageId: input.verifyingKey,
-            journalDigest: RiscZeroUtils.toJournalDigest(input, root, consumed)
+            journalDigest: input.toJournalDigest(root, consumed)
         });
     }
 

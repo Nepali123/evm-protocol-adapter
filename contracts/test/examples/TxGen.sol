@@ -17,6 +17,7 @@ import {Transaction, Action, Resource} from "../../src/Types.sol";
 library TxGen {
     using ComputableComponents for Resource;
     using RiscZeroUtils for Compliance.Instance;
+    using RiscZeroUtils for Logic.VerifierInput;
     using Logic for Logic.VerifierInput[];
     using Delta for uint256[2];
 
@@ -85,6 +86,8 @@ library TxGen {
             appData: appData,
             proof: abi.encodePacked(uint32(0))
         });
+
+        input.proof = mockVerifier.mockProve({imageId: resource.logicRef, journalDigest: input.toJournalDigest(actionTreeRoot, isConsumed)}).seal;
     }
 
     function createAction(
