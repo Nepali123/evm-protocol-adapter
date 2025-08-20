@@ -226,7 +226,7 @@ mod tests {
             ProtocolAdapter::Transaction::abi_decode(&encoded_tx).unwrap();
         assert_eq!(evm_tx, decoded_tx);
         println!("Encoded transaction: {:?}", encoded_tx);
-        std::fs::write("test_tx.bin", &encoded_tx)
+        std::fs::write("test_tx{n_actions:02}.bin", &encoded_tx)
             .expect("Failed to write encoded transaction to file");
     }
 }
