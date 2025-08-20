@@ -5,7 +5,7 @@ use arm_risc0::action::Action;
 use arm_risc0::compliance::ComplianceInstance;
 use arm_risc0::compliance_unit::ComplianceUnit;
 use arm_risc0::logic_instance::{AppData, ExpirableBlob, LogicInstance};
-use arm_risc0::logic_proof::LogicProof;
+use arm_risc0::logic_proof::LogicVerifierInputs;
 use arm_risc0::proving_system::encode_seal;
 use arm_risc0::resource::Resource as ArmResource;
 use arm_risc0::transaction::{Delta, Transaction};
@@ -79,23 +79,13 @@ impl From<AppData> for Logic::AppData {
     }
 }
 
-impl From<LogicInstance> for Logic::Instance {
-    fn from(instance: LogicInstance) -> Self {
+impl From<LogicVerifierInputs> for Logic::VerifierInput {
+    fn from(logic_verifier_inputs: LogicVerifierInputs) -> Self {
         Self {
-            tag: B256::from_slice(words_to_bytes(&instance.tag)),
-            isConsumed: instance.is_consumed,
-            actionTreeRoot: B256::from_slice(words_to_bytes(&instance.root)),
-            appData: instance.app_data.into(),
-        }
-    }
-}
-
-impl From<LogicProof> for Logic::VerifierInput {
-    fn from(logic_proof: LogicProof) -> Self {
-        Self {
-            proof: Bytes::from(encode_seal(&logic_proof.proof)),
-            instance: logic_proof.get_instance().into(),
-            verifyingKey: B256::from_slice(words_to_bytes(&logic_proof.verifying_key)),
+            tag: B256::from_slice(words_to_bytes(&logic_verifier_inputs.tag)),
+            verifyingKey: B256::from_slice(words_to_bytes(&logic_verifier_inputs.verifying_key)),
+            appData: logic_verifier_inputs.app_data.into(),
+            proof: Bytes::from(encode_seal(&logic_verifier_inputs.proof)),
         }
     }
 }
