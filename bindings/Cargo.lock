@@ -2262,6 +2262,7 @@ name = "evm_protocol_adapter_bindings"
 version = "0.1.0"
 dependencies = [
  "alloy",
+ "alloy-sol-types",
  "arm",
  "dotenv",
  "serde",
