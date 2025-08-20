@@ -256,11 +256,11 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                 for (uint256 j = 0; j < nResources; ++j) {
                     Logic.VerifierInput calldata input = action.logicVerifierInputs[j];
                     if (TagLookup.isFoundInEvenOrOddPosition(actionTreeTags, input.tag, true)) {
-                        // Check the logic proof for created resource
-                        _verifyLogicProof(input, actionTreeRoot, false);
-                    } else {
-                        // Else the tag is a nullifier
+                        // Check the logic proof for nullified resource
                         _verifyLogicProof(input, actionTreeRoot, true);
+                    } else {
+                        // Else the tag is a created resource
+                        _verifyLogicProof(input, actionTreeRoot, false);
                     }
                 }
             }
