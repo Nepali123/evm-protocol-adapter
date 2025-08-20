@@ -16,8 +16,7 @@ import {DeployRiscZeroContracts} from "../script/DeployRiscZeroContracts.s.sol";
 contract BenchmarkData is Test {
     function _parse(string memory path) internal view returns (Transaction memory txn) {
         string memory fullPath = string.concat(vm.projectRoot(), path);
-        string memory json = vm.readFile(fullPath);
-        bytes memory data = vm.parseJson(json);
+        bytes memory data = vm.readFileBinary(fullPath);
 
         txn = abi.decode(data, (Transaction));
     }
@@ -32,7 +31,7 @@ contract Benchmark is BenchmarkData {
     Transaction[2] internal _txns;
 
     function setUp() public {
-        string[1] memory paths = ["test_tx1.json"];
+        string[1] memory paths = ["test_tx.bin"];
         /*
         string[9] memory paths = [
             "test_tx1.json",
