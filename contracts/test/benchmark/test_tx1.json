@@ -3,48 +3,40 @@
     {
       "0_logicVerifierInputs": [
         {
-          "0_proof": "0xbb001d4420a60e19014b32758757254a43da8f03864d453989c31730fe31415b69e77d6b2b09c96fbd70ad54d09fe1141619d419369b56fbedeb22b4d05fe5ef0b8e479d01c6b953c8c584a5405a7a73eb031b39360563333d568689e6b38979d83e6c6f10912f580f37769ee4e30598703b42cdb16b8696c9a5d89f187579836a6d7bd00005ed6a703b1d8e867aca9ea0a98b1af6c256e63dbb2c482aa25af871dbb6e20487bc141464733b6232f052e82516bf0fa53ca2850725fe2ed0878afc7a9bfb012c55185e7147849e101eb76e6257068739b987071c66e21d24fcef5a7e2b2d02078348153745d307be0e296bc7d928dd1d88cd60555076230b44f04b3570de",
-          "1_instance": {
-            "0_tag": "0x4c2648c5b7a50fe7049765a5c1705ed14658160d0c9ecaea5697f28211320aac",
-            "1_isConsumed": true,
-            "2_actionTreeRoot": "0x36cc75a16d3f2862ba6b7a4eabef90f2207093edf3fe5a80447a7467ed5d6ca1",
-            "3_appData": {
-              "0_resourcePayload": [],
-              "1_discoveryPayload": [],
-              "2_externalPayload": [],
-              "3_applicationPayload": []
-            }
+          "0_tag": "0x2fe6775e82ad71cd3f0531ebe9f85b9d00ad7bc21e8ac5f5c6fd1a68b4dfba2b",
+          "1_verifyingKey": "0xf8047dc2cf6cbe45137a588a3f019814218e7d7199b1b86a57b51c310e04fae9",
+          "2_appData": {
+            "0_resourcePayload": [],
+            "1_discoveryPayload": [],
+            "2_externalPayload": [],
+            "3_applicationPayload": []
           },
-          "2_verifyingKey": "0xb24f946a9da8eb0e96f8d357c0c5a73191dd54089ca1f1094d36ccc5041fd885"
+          "3_proof": "0xbb001d4407a197561e75ff04be754784dd72c3bb032746ff6c60294708e9e16d6abd451d2b95b12955aa302ad11819e7e77ef4a2a013f4b3d66817b63af158bee50ae34803bddc43fbf30151ea56a7c68dbeccb98e1e09fd624af2b58c785953f9536c4e01c798fd6fd373e29e29170003ced169509e80d3d1a097b11c1495e9967379041a34fb79721bd2549bfbbdda742fa1fd5ffc7076e949fccd729f767a7c32dfad1f7f1eb14dfd537eaba372d3b81e3c3430b7ff9073ac69bbe9bf730458ed30ec240c0897034eb24cc64312048e78b796873e9974df828cc63c61eb513c0de1d204b7bb5a3632107b3f5ccc17d358a59b6f9518c704800163a63aab2d31958311"
         },
         {
-          "0_proof": "0xbb001d442c7e226786cfaf911fce15ae21a4c2af4ebe60bbc3727911e8b2de0d19993dc60d0a4e71165c66a5049633870e014bc3952f6d721422cb4725ccd14985d1ba2505dbe96be7e02871ef1abaa24cb16e500c7b1b65ca0c96016c48967bdabe0eb6297ebe6a3f42bc8fd1ddb1319a0dca52d736169b5a47b9f0441b69fc91e10b5228f7090590dcc5a93e4ac2474a889d831e094be32215b91ef69fd97e11de07ce2942a0845afb3be4425631b26a0aa727a4e08013af0cbf171176f4e4b500f8d41136dcdf55803b7f3dab365a41fe2f9ca14c95047d8a727e0fc136231333d48b12f6a62e99ad8e3b7b87c062430fd4423b7e2741324271beac5500f949e8783b",
-          "1_instance": {
-            "0_tag": "0x82fc45a348d71e9933036d9199ea3b06f374406f13eba6d1177f4abd9098866f",
-            "1_isConsumed": false,
-            "2_actionTreeRoot": "0x36cc75a16d3f2862ba6b7a4eabef90f2207093edf3fe5a80447a7467ed5d6ca1",
-            "3_appData": {
-              "0_resourcePayload": [],
-              "1_discoveryPayload": [],
-              "2_externalPayload": [],
-              "3_applicationPayload": []
-            }
+          "0_tag": "0x193e55bfc8d65a9efd4471c0287c69c8918e7d9331901a01ee2841533ca1f719",
+          "1_verifyingKey": "0xf8047dc2cf6cbe45137a588a3f019814218e7d7199b1b86a57b51c310e04fae9",
+          "2_appData": {
+            "0_resourcePayload": [],
+            "1_discoveryPayload": [],
+            "2_externalPayload": [],
+            "3_applicationPayload": []
           },
-          "2_verifyingKey": "0xb24f946a9da8eb0e96f8d357c0c5a73191dd54089ca1f1094d36ccc5041fd885"
+          "3_proof": "0xbb001d4413222060708b223191bbe0c578a2b28fc9f4b982b5788c58aaff238863acbda524182c1c33cbe89df260f2e8dc4694cb39d2c8dac0aefa047a4ab8ed96e381dd26faf7ec9e0de4d242ee5f611f5f8ea7cd3d480a07419cb10d33988c9d76845f00114cc6c2d0a1efa8037b873d9123f9523d080c4540de1f947bc8efa13aead9169bcbc91b74fb1c2ef5d58a2bdea1d12917e410826bd16a70c7e0949d8f3cc3190250fc7202f1402a17974e1eef5ed75704fb18511bb30f60b27538082a226b090002c42b32b9e206cad780f8dd00bb22a6ff98297ca03a5c020e4cac3e94672a1ba8e2b96c5819d6fec6705846c75af84fcb5f790f1c4340094567b8d9d1b8"
         }
       ],
       "1_complianceVerifierInputs": [
         {
-          "0_proof": "0xbb001d44141b75bfec1d76376595ef03ec78c49fe2ab1fd6ac26a8dd5be327b34dc97a2b2cb861d0e320bb652f75e787a043a93d8ea88842d3d6bbe3f1ffbdcc96c10af61d9806a58202ca540c227bb2ab64f708c34d4e4332e20f9f6148aa76104a61cd03d3f5e4251e97ad57d2c9d53f057eb41217cd01e66de19b45b358508b1b962b285e1f40ab83744018d6394754ed9ef283d4c35755269ecbfb69a8481809c09927058d6fac9730ea2af20c281e29315c8ef1f92110b395f64e5cd1d7d68a84831afabf0da99a2ca30a6ad1191612bf8530e89fecf844ba449c8136242914b13e21b1dd24ef51318f546b25f2bf5685ba7a303fe9ba51f94d977e08c53751071c",
+          "0_proof": "0xbb001d44152a1d6fd8f45d1c979342581b7953614b228b43218a5c8559b0f4415b836f392fe183f44bd4b3488d3fe36c0f2c6de21bf11fe18c3403adf2d4a33e7b7a0bc50028b0681cb33df7b915d6bea43654f85cc42839accff571f27799d9b04641461057137e2297539f9bf791bd0f9a9c35a0e0b1a6f99bd3ec41d563a091d2d40d0178aa6fad1be69f3360a61d8f1ae6690bfb234b90bc6485985bc98eb04f33cd01f6c852998de57eaf57a369f4106164ffcbb550d41dffa8a2d75f1efa9ddd230def4d79a3d63170e0c68f52ba1593a32ce264a61a43f97f4304dedd8aea304609241a2c93a7447a309694603afcc4160531e0c9d3c2fe3630a25cf6aa55f1c3",
           "1_instance": {
             "0_consumed": {
-              "0_nullifier": "0x4c2648c5b7a50fe7049765a5c1705ed14658160d0c9ecaea5697f28211320aac",
-              "1_logicRef": "0xb24f946a9da8eb0e96f8d357c0c5a73191dd54089ca1f1094d36ccc5041fd885",
+              "0_nullifier": "0x2fe6775e82ad71cd3f0531ebe9f85b9d00ad7bc21e8ac5f5c6fd1a68b4dfba2b",
+              "1_logicRef": "0xf8047dc2cf6cbe45137a588a3f019814218e7d7199b1b86a57b51c310e04fae9",
               "2_commitmentTreeRoot": "0x7e70786b1d52fc0412d75203ef2ac22de13d9596ace8a5a1ed5324c3ed7f31c3"
             },
             "1_created": {
-              "0_commitment": "0x82fc45a348d71e9933036d9199ea3b06f374406f13eba6d1177f4abd9098866f",
-              "1_logicRef": "0xb24f946a9da8eb0e96f8d357c0c5a73191dd54089ca1f1094d36ccc5041fd885"
+              "0_commitment": "0x193e55bfc8d65a9efd4471c0287c69c8918e7d9331901a01ee2841533ca1f719",
+              "1_logicRef": "0xf8047dc2cf6cbe45137a588a3f019814218e7d7199b1b86a57b51c310e04fae9"
             },
             "2_unitDeltaX": "0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
             "3_unitDeltaY": "0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8"
@@ -53,5 +45,5 @@
       ]
     }
   ],
-  "1_deltaProof": "0x9b2ccfff0cd34fd14d78db3c6d0b73e98b8c6a6e36f8f757ae531f89acb820707f9ece9277688e38440cc942b886bb0643db60f72cd14f83e1efa0d74fff13ab1b"
+  "1_deltaProof": "0x84573c4cb7358f0251e661ac747756df1ade611cb00d76e17bf292952c0de69451f047436136cc0ada65d69bff88e872f5d147f4c5548c18b244822d7a758eeb1b"
 }

@@ -342,4 +342,21 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
             revert CalldataCarrierKindMismatch({expected: fetchedKind, actual: ComputableComponents.kind_(pair.carrier)});
         }
     }
+
+        /// @dev This method is added to force the abi json to contain the resource struct definition. And can be removed
+    /// when the `_verifyForwarderCalls` and `_executeForwarderCall` are reintroduced.
+    // TODO! Remove when fixing EVM interop in https://github.com/anoma/evm-protocol-adapter/pull/162
+    // solhint-disable-next-line max-line-length, ordering, comprehensive-interface, use-natspec
+    function dummyResource(Resource calldata res) public pure returns (Resource memory dummy) {
+        dummy = Resource({
+            logicRef: res.logicRef,
+            labelRef: res.labelRef,
+            valueRef: res.valueRef,
+            nullifierKeyCommitment: bytes32(0),
+            quantity: 0,
+            nonce: 0,
+            randSeed: 0,
+            ephemeral: true
+        });
+    }
 }
