@@ -359,11 +359,11 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
         }
 
         // Check tag correspondence
-        if (consumed) {
+        if (!consumed) {
             if (resource.commitment_() != input.tag) {
                 revert CalldataCarrierTagMismatch({actual: input.tag, expected: resource.commitment_()});
             }
-        } else if (resource.nullifier_(abi.decode(input.appData.resourcePayload[1].blob, (bytes32))) != input.tag) {
+        } else if (resource.nullifier_(bytes32(input.appData.resourcePayload[1].blob)) != input.tag) {
             revert CalldataCarrierTagMismatch({
                 actual: input.tag,
                 expected: resource.nullifier_(abi.decode(input.appData.resourcePayload[1].blob, (bytes32)))
