@@ -10,7 +10,6 @@ import {Test} from "forge-std/Test.sol";
 import {IProtocolAdapter} from "../src/interfaces/IProtocolAdapter.sol";
 import {MerkleTree} from "../src/libs/MerkleTree.sol";
 import {TagLookup} from "../src/libs/TagLookup.sol";
-import {ProtocolAdapter} from "../src/ProtocolAdapter.sol";
 import {CommitmentAccumulator} from "../src/state/CommitmentAccumulator.sol";
 import {NullifierSet} from "../src/state/NullifierSet.sol";
 import /*ResourceForwarderCalldataPair, ForwarderCalldata,*/ {Transaction} from "../src/Types.sol";
