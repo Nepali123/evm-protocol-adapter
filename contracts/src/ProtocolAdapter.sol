@@ -349,7 +349,9 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
     /// @param input The input to verify the forwarder calls for.
     /// @param consumed The bool indicating whether the tag is commitment of nullifier
     function _verifyForwarderCalls(Logic.VerifierInput calldata input, bool consumed) internal view {
+        // The PA expects the forwarder calldata to be present at the head of the external payload
         ForwarderCalldata memory call = abi.decode(input.appData.externalPayload[0].blob, (ForwarderCalldata));
+        // The plaintext should be stores at the head of resource payload and be decodable
         Resource memory resource = abi.decode(input.appData.resourcePayload[0].blob, (Resource));
         bytes32 fetchedKind = IForwarder(call.untrustedForwarder).calldataCarrierResourceKind();
 
@@ -360,10 +362,14 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
 
         // Check tag correspondence
         if (!consumed) {
+            // If created, just commit the plaintext and check agains the tag
             if (resource.commitment_() != input.tag) {
                 revert CalldataCarrierTagMismatch({actual: input.tag, expected: resource.commitment_()});
             }
-        } else if (resource.nullifier_(bytes32(input.appData.resourcePayload[1].blob)) != input.tag) {
+        } else if (
+            // If consumed, we expect the nullifier key to be present in the resource payload as well
+            resource.nullifier_(bytes32(input.appData.resourcePayload[1].blob)) != input.tag
+        ) {
             revert CalldataCarrierTagMismatch({
                 actual: input.tag,
                 expected: resource.nullifier_(abi.decode(input.appData.resourcePayload[1].blob, (bytes32)))
