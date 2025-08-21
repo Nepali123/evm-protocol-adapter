@@ -31,16 +31,11 @@ contract Benchmark is BenchmarkData {
     Transaction[5] internal _txns;
 
     function setUp() public {
-        string[5] memory paths = [
-            "test_tx01.bin",
-            "test_tx05.bin",
-            "test_tx10.bin",
-            "test_tx15.bin",
-            "test_tx20.bin"
-            // "test_tx25.json",
-            //"test_tx30.json",
-            //"test_tx35.json",
-            //"test_tx40.json"
+        string[5] memory paths = ["test_tx01.bin", "test_tx05.bin", "test_tx10.bin", "test_tx15.bin", "test_tx20.bin"
+        // "test_tx25.json",
+        //"test_tx30.json",
+        //"test_tx35.json",
+        //"test_tx40.json"
         ];
 
         for (uint256 i = 0; i < paths.length; ++i) {
@@ -97,6 +92,7 @@ contract Benchmark is BenchmarkData {
     function test_verify_01() public view {
         _pa.verify(_txns[0]);
     }
+
     function test_verify_05() public view {
         _pa.verify(_txns[1]);
     }
