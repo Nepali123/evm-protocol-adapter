@@ -20,7 +20,7 @@ import {CommitmentAccumulator} from "./state/CommitmentAccumulator.sol";
 
 import {NullifierSet} from "./state/NullifierSet.sol";
 
-import {Action, ForwarderCalldata, Resource, Transaction, ResourceForwarderCalldataPair} from "./Types.sol";
+import {Action, ForwarderCalldata, Resource, Transaction} from "./Types.sol";
 
 /// @title ProtocolAdapter
 /// @author Anoma Foundation, 2025
@@ -83,9 +83,9 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                 Logic.VerifierInput calldata input = action.logicVerifierInputs[j];
 
                 if (input.appData.externalPayload.length != 0) {
-                    ResourceForwarderCalldataPair memory pair =
-                        abi.decode(input.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
-                    _executeForwarderCall(pair.call);
+                    ForwarderCalldata memory call =
+                        abi.decode(input.appData.externalPayload[0].blob, (ForwarderCalldata));
+                    _executeForwarderCall(call);
                 }
             }
 
@@ -220,7 +220,7 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                         }
 
                         if (logicVerifierInput.appData.externalPayload.length != 0) {
-                            _verifyForwarderCalls(logicVerifierInput);
+                            _verifyForwarderCalls(logicVerifierInput, true);
                         }
                     }
                     {
@@ -234,7 +234,7 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
                         }
 
                         if (logicVerifierInput.appData.externalPayload.length != 0) {
-                            _verifyForwarderCalls(logicVerifierInput);
+                            _verifyForwarderCalls(logicVerifierInput, false);
                         }
                     }
 
@@ -347,20 +347,30 @@ contract ProtocolAdapter is IProtocolAdapter, ReentrancyGuardTransient, Commitme
 
     /// @notice Verifies the forwarder calls of a given action.
     /// @param input The input to verify the forwarder calls for.
-    function _verifyForwarderCalls(Logic.VerifierInput calldata input) internal view {
-        ResourceForwarderCalldataPair memory pair =
-            abi.decode(input.appData.externalPayload[0].blob, (ResourceForwarderCalldataPair));
-        if (ComputableComponents.commitment_(pair.carrier) != input.tag) {
-            revert CalldataCarrierTagMismatch({
-                actual: input.tag,
-                expected: ComputableComponents.commitment_(pair.carrier)
-            });
+    /// @param consumed The bool indicating whether the tag is commitment of nullifier
+    function _verifyForwarderCalls(Logic.VerifierInput calldata input, bool consumed) internal view {
+        ForwarderCalldata memory call = abi.decode(input.appData.externalPayload[0].blob, (ForwarderCalldata));
+        Resource memory resource = abi.decode(input.appData.resourcePayload[0].blob, (Resource));
+        bytes32 fetchedKind = IForwarder(call.untrustedForwarder).calldataCarrierResourceKind();
+
+        // Check kind correspondence
+        if (resource.kind_() != fetchedKind) {
+            revert CalldataCarrierKindMismatch({expected: fetchedKind, actual: resource.kind_()});
         }
 
-        bytes32 fetchedKind = IForwarder(pair.call.untrustedForwarder).calldataCarrierResourceKind();
-        if (ComputableComponents.kind_(pair.carrier) != fetchedKind) {
-            revert CalldataCarrierKindMismatch({expected: fetchedKind,
-                    actual: ComputableComponents.kind_(pair.carrier)});
+        // Check tag correspondence
+        if (consumed) {
+            if (resource.commitment_() != input.tag) {
+                revert CalldataCarrierTagMismatch({actual: input.tag, expected: resource.commitment_()});
+            } else {
+                (resource.nullifier_(abi.decode(input.appData.resourcePayload[1].blob, (bytes32))) != input.tag);
+            }
+            {
+                revert CalldataCarrierTagMismatch({
+                    actual: input.tag,
+                    expected: resource.nullifier_(abi.decode(input.appData.resourcePayload[1].blob, (bytes32)))
+                });
+            }
         }
     }
 }
