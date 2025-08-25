@@ -4,7 +4,7 @@ use alloy::sol;
 use arm_risc0::action::Action;
 use arm_risc0::compliance::ComplianceInstance;
 use arm_risc0::compliance_unit::ComplianceUnit;
-use arm_risc0::logic_instance::{AppData, ExpirableBlob, LogicInstance};
+use arm_risc0::logic_instance::{AppData, ExpirableBlob};
 use arm_risc0::logic_proof::LogicVerifierInputs;
 use arm_risc0::proving_system::encode_seal;
 use arm_risc0::resource::Resource as ArmResource;
@@ -18,15 +18,6 @@ sol!(
     ProtocolAdapter,
     "../contracts/out/ProtocolAdapter.sol/ProtocolAdapter.json"
 );
-
-fn insert_zeros(vec: Vec<u8>) -> Vec<u8> {
-    vec.into_iter()
-        .flat_map(|byte| {
-            // Create an iterator that contains the original byte followed by three zero bytes
-            std::iter::once(byte).chain(std::iter::repeat_n(0, 3))
-        })
-        .collect()
-}
 
 impl From<ArmResource> for ProtocolAdapter::Resource {
     fn from(r: ArmResource) -> Self {
