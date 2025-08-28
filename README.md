@@ -180,5 +180,5 @@ Change the directory to the `bindings` folder with `cd bindings` and run
 Print a test transaction with
 
 ```sh
-cargo test -- conversion::tests::print_tx --exact --show-output --ignored
+cargo test conversion::tests::print_tx --exact -- --ignored --nocapture
 ```
